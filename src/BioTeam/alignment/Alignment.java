@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 // An abstract class that provides basic functionality for alignments.
-abstract class Alignment implements Set, Editable, IO {
+public abstract class Alignment implements Set, Editable, IO {
     // A list to store the genomes of the alignment
     protected List<Genome> genomes; // protected in order to be accessed by subclasses
     // A HashMap to store the mapping of genome ids to their indices in the list above.
@@ -111,7 +111,7 @@ abstract class Alignment implements Set, Editable, IO {
     }
 
     // A method for checking if a given subsequence is present in any of the genomes
-    public int[] containsSubSequence(String pattern) {
+    public int[] containsGenomeSubSequence(String pattern) {
         List<Integer> found = new ArrayList<>();
         int i = 0;
         // Looking for the subsequence in all genomes

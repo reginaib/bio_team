@@ -1,5 +1,9 @@
 package BioTeam;
 
+import BioTeam.repository.Repository;
+import BioTeam.users.BioInformatician;
+import BioTeam.users.Leader;
+import BioTeam.users.Technician;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.*;

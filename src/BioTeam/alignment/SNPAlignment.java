@@ -17,7 +17,7 @@ public class SNPAlignment extends Alignment {
     }
 
     // A constructor for creating a SNPAlignment based on an existing SNPAlignment
-    protected SNPAlignment(SNPAlignment alignment) {
+    protected SNPAlignment(Alignment alignment) {
         super(alignment);
     }
 
@@ -25,6 +25,10 @@ public class SNPAlignment extends Alignment {
     @Override
     public SNPAlignment copy() {
         return new SNPAlignment(this);
+    }
+
+    public StandardAlignment getStandardAlignment() {
+        return new StandardAlignment(this);
     }
 
     // A method to read a SNPAlignment from a file and return the created alignment
@@ -60,7 +64,19 @@ public class SNPAlignment extends Alignment {
     // Throws an 'IOException' if there are any issues while writing to the file
     @Override
     public void write(File file) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(file)) {
+        this.write(file, false);
+    }
+
+    // An overridden method for writing the SNPAlignment data with meta information to a file
+    // Throws an 'IOException' if there are any issues while writing to the fil
+    @Override
+    public void write(File file, String meta) throws IOException {
+        this.write(file, meta, false);
+    }
+
+    @Override
+    public void write(File file, boolean append) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(file, append)) {
             Genome first = this.genomes.get(0);
             fileWriter.write(first.getId());
             fileWriter.write('\n');
@@ -77,11 +93,9 @@ public class SNPAlignment extends Alignment {
         }
     }
 
-    // An overridden method for writing the SNPAlignment data with meta information to a file
-    // Throws an 'IOException' if there are any issues while writing to the fil
     @Override
-    public void write(File file, String meta) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(file)) {
+    public void write(File file, String meta, boolean append) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(file, append)) {
             Genome first = this.genomes.get(0);
             fileWriter.write(first.getId());
             fileWriter.write(meta);

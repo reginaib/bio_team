@@ -13,8 +13,10 @@ public interface IO {
     // A method for writing alignment data to a file
     // Throws an 'IOException' if there are any issues while writing to the file
     public void write(File file) throws IOException;
+    public void write(File file, boolean append) throws IOException;
 
     // A method for writing the alignment along with meta information to a file
     // Throws an 'IOException' if there are any issues while writing to the file
     public void write(File file, String meta) throws IOException;
+    public void write(File file, String meta, boolean append) throws IOException;
 }

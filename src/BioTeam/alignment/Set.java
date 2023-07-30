@@ -2,7 +2,7 @@ package BioTeam.alignment;
 
 import BioTeam.alignment.genome.Genome;
 
-// An interface for set of genomes
+// An interface for handling operations related to sets of genomes
 public interface Set {
     // A method for getting the numbers of genomes in the alignment
     public int getSize();

@@ -2,7 +2,7 @@ package BioTeam.alignment;
 
 import BioTeam.alignment.genome.Genome;
 
-// An interface for editing alignments
+// An interface for handling operations related to editing alignments
 public interface Editable {
     // A method for adding a genome to the alignment
     void addGenome(Genome genome);

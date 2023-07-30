@@ -17,7 +17,7 @@ public class StandardAlignment extends Alignment {
     }
 
     // A constructor for creating a StandardAlignment based on an existing StandardAlignment
-    protected StandardAlignment(StandardAlignment alignment) {
+    protected StandardAlignment(Alignment alignment) {
         super(alignment); // Calls the constructor of the superclass
     }
 
@@ -25,6 +25,10 @@ public class StandardAlignment extends Alignment {
     @Override
     public StandardAlignment copy() {
         return new StandardAlignment(this);
+    }
+
+    public SNPAlignment getSNPAlignment() {
+        return new SNPAlignment(this);
     }
 
     // A method to read a StandardAlignment from a file and return the created alignment
@@ -51,7 +55,19 @@ public class StandardAlignment extends Alignment {
     // Throws an 'IOException' if there are any issues while writing to the file
     @Override
     public void write(File file) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(file)) { // try (...) {} ensure the proper file closing
+        this.write(file, false);
+    }
+
+    // An overridden method for writing the StandardAlignment data with meta information to a file
+    // Throws an 'IOException' if there are any issues while writing to the file
+    @Override
+    public void write(File file, String meta) throws IOException {
+        this.write(file, meta, false);
+    }
+
+    @Override
+    public void write(File file, boolean append) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(file, append)) { // try (...) {} ensure the proper file closing
             for (Genome genome: this.genomes) {
                 fileWriter.write(genome.getId());
                 fileWriter.write('\n'); // new line character to separate rows
@@ -61,11 +77,9 @@ public class StandardAlignment extends Alignment {
         }
     }
 
-    // An overridden method for writing the StandardAlignment data with meta information to a file
-    // Throws an 'IOException' if there are any issues while writing to the file
     @Override
-    public void write(File file, String meta) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(file)) {
+    public void write(File file, String meta, boolean append) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(file, append)) {
             for (Genome genome: this.genomes) {
                 fileWriter.write(genome.getId());
                 fileWriter.write(meta);
