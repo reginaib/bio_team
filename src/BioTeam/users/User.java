@@ -1,6 +1,6 @@
 package BioTeam.users;
 
-public abstract class User implements UserInfo{
+public abstract class User implements UserInfo {
     private final String firstName;
     private final String lastName;
     private int experience;
@@ -41,5 +41,17 @@ public abstract class User implements UserInfo{
             throw new IllegalArgumentException("Negative experience");
         }
         this.experience = experience;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (this.getClass() != obj.getClass()) return false;
+        return this.getFullName().equals(((User) obj).getFullName());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getFullName().hashCode();
     }
 }

@@ -4,7 +4,7 @@ import BioTeam.alignment.genome.Genome;
 
 import java.io.*;
 
-// The SNPAlignment extends the Alignment class and represents a SNP (Single Nucleotide Polymorphisms) alignment
+// The SNPAlignment extends the Alignment class and represents SNP (Single Nucleotide Polymorphisms) alignment
 public class SNPAlignment extends Alignment {
     // A constructor for creating an empty SNPAlignment
     public SNPAlignment(){

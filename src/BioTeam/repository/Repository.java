@@ -1,54 +1,86 @@
 package BioTeam.repository;
 
+import BioTeam.users.Bioinformatician;
+import BioTeam.users.TeamLead;
+import BioTeam.users.TechnicalSupport;
 import BioTeam.users.User;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Map.Entry;
 
 // A class representing the repository
 public class Repository {
-    private final List<User> users;
+    private final HashMap<User, Integer> experience;
+    private final Properties properties;
 
-    public Repository() {
-        this.users = new ArrayList<>();
+    public Repository(Properties properties) {
+        this.experience = new HashMap<>();
+        this.properties = properties;
     }
 
-    public static Repository readRepository() throws IOException {
-        Repository repository = new Repository();
+    public void loadRepo() throws IOException {
+        try (FileReader fileReader = new FileReader(properties.getProperty("fastafilename"))) {
+            try (BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+                String user = bufferedReader.readLine();
+                while (user != null) {
+                    String[] meta = user.split(" ");
 
-        try (FileReader file = new FileReader(new File(directory, "repository.txt"))) {
-            BufferedReader reader = new BufferedReader(file);
-            String line = reader.readLine();
-            while (line != null) {
-                String[] columns = line.split(" ");
-                BioInformatician user = new BioInformatician(columns[0], columns[1],
-                                                             Integer.parseInt(columns[2]));
+                    String firstName = meta[1];
+                    String secondName = meta[2];
+                    int expirience = Integer.parseInt(meta[3]);
 
-                try (FileReader fasta = new FileReader(new File(directory, user.getName() + ".alignment.txt"))) {
-                    user.readFASTA(fasta);
+                    switch (meta[0]) {
+                        case "TeamLead" ->
+                                this.experience.put(new TeamLead(firstName, secondName, expirience), expirience);
+                        case "Bioinformatician" ->
+                                this.experience.put(new Bioinformatician(firstName, secondName, expirience), expirience);
+                        case "TechnicalSupport" ->
+                                this.experience.put(new TechnicalSupport(firstName, secondName, expirience), expirience);
+                    }
+                    user = bufferedReader.readLine();
                 }
-                catch (FileNotFoundException ignored) {}
-
-                repository.addUser(user);
-                line = reader.readLine();
             }
         }
-        catch (FileNotFoundException ignored) {}
-
-        try (FileReader file = new FileReader(new File(directory, "alignment.txt"))) {
-            repository.setAlignment(AlignmentBU.readFASTA(file));
-        }
-        catch (FileNotFoundException ignored) {}
-
-        return repository;
     }
 
-    public String[] listUsers() {
-        String[] users = new String[this.users.size()];
-        for (int i = 0; i < this.users.size(); i++) {
-            users[i] = this.users.get(i).getName();
+    public File getOptimalAlignment() {
+        return new File(this.properties.getProperty("fastafilename"));
+    }
+
+    public File getOptimalSNPAlignment() {
+        return new File(this.properties.getProperty("snipfilename"));
+    }
+
+    public File getOptimalScore() {
+        return new File(this.properties.getProperty("scorefilename"));
+    }
+
+    public File getBackUpList() {
+        return new File(this.properties.getProperty("backupfilename"));
+    }
+
+    public Bioinformatician[] getBioinformaticians() {
+        List<Bioinformatician> users = new ArrayList<>();
+
+        for (Entry<User, Integer> user: this.experience.entrySet()) {
+            if (user instanceof Bioinformatician) {
+                users.add((Bioinformatician) user.getKey());
+            }
         }
-        return users;
+        return users.toArray(new Bioinformatician[0]);
+    }
+
+    public User loadUser(User user) {
+        Integer exp = this.experience.get(user);
+        if (exp == null) return null;
+        user.setExperience(exp);
+        return user;
     }
 }

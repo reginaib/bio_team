@@ -1,9 +1,9 @@
 package BioTeam;
 
 import BioTeam.repository.Repository;
-import BioTeam.users.BioInformatician;
-import BioTeam.users.Leader;
-import BioTeam.users.Technician;
+import BioTeam.users.Bioinformatician;
+import BioTeam.users.TeamLead;
+import BioTeam.users.TechnicalSupport;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.*;
@@ -101,7 +101,7 @@ public class CLI {
 
             switch ((String) ns.get("role")) {
                 case "technician" -> {
-                    Technician technician = new Technician(repository);
+                    TechnicalSupport technician = new TechnicalSupport(repository);
                     switch ((String) ns.get("action")) {
                         case "backup" -> technician.backUp(ns.get("o"));
                         case "restore" -> {
@@ -136,7 +136,7 @@ public class CLI {
                     }
                 }
                 case "leader" -> {
-                    Leader leader = new Leader(repository);
+                    TeamLead leader = new TeamLead(repository);
                     switch ((String) ns.get("action")) {
                         case "promote" -> leader.promoteUserAlignment(ns.get("name"));
                         case "set" -> leader.setUserAlignment(ns.get("name"));
@@ -158,7 +158,7 @@ public class CLI {
                     }
                 }
                 case "bioinformatician" -> {
-                    BioInformatician bioinformatician = repository.getUser(ns.get("name"));
+                    Bioinformatician bioinformatician = repository.getUser(ns.get("name"));
                     File f;
                     switch ((String) ns.get("action")) {
                         case "write-fasta" -> {
