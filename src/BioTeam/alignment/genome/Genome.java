@@ -1,24 +1,27 @@
 package BioTeam.alignment.genome;
 
-
 public class Genome implements Sequence, Editable {
-    private final String id;
+    private final String id; // The variables are private, they could be accessed through getters shown below
     private String sequence;
 
+    // A constructor to create a genome with a given id and sequence
     public Genome(String id, String sequence) {
         this.id = id;
         this.sequence = sequence;
     }
 
+    // A constructor to create a genome for making copies
     private Genome(Genome genome) {
         this.id = genome.id;
         this.sequence = genome.sequence;
     }
 
+    // Getters to ensure proper encapsulation
     public String getId() {
         return this.id;
     }
 
+    // Two overridden getters of the interface
     @Override
     public int getLength() {
         return this.sequence.length();
@@ -29,7 +32,7 @@ public class Genome implements Sequence, Editable {
         return this.sequence;
     }
 
-    // generate SNP string of the given genome
+    // A method to generate a SNP string of the given genome
     public String getDifference(Genome genome) {
         String sequence = genome.getSequence();
         StringBuilder seq = new StringBuilder(sequence.length());
@@ -43,14 +46,14 @@ public class Genome implements Sequence, Editable {
                 seq.append(c);
             }
         }
-        // fill remain characters
+        // Fill remain characters
         for (int i = length; i < sequence.length(); i++) {
             seq.append(sequence.charAt(i));
         }
         return seq.toString();
     }
 
-    // restore sequence of the given SNP string
+    // A method to restore sequence of the given SNP string
     public String getDifference(String sequence) {
         StringBuilder seq = new StringBuilder(sequence.length());
         int length = Math.min(this.sequence.length(), sequence.length());
@@ -68,6 +71,7 @@ public class Genome implements Sequence, Editable {
         return seq.toString();
     }
 
+    // Overridden methods of the interfaces
     @Override
     public boolean containsSubSequence(String pattern) {
         return this.sequence.contains(pattern);
@@ -82,6 +86,7 @@ public class Genome implements Sequence, Editable {
         return false;
     }
 
+    // A method to make a copy of the genome
     public Genome copy() {
         return new Genome(this);
     }
