@@ -18,70 +18,82 @@ public class Main {
         try (FileInputStream input = new FileInputStream("config.properties")) {
             properties.load(input);
         }
+        // Initializing the repository and loading data
         Repository repository = new Repository(properties);
         repository.loadRepo();
 
         // Loading bioinformatician
         Bioinformatician bioinformatician = new Bioinformatician("Marc", "Janssens");
         try {
-            bioinformatician = (Bioinformatician) repository.loadUser(bioinformatician);
+            // Loading and configuring the bioinformatician
+            bioinformatician = repository.loadUser(bioinformatician);
 
+            // Replacing a specific genome substring
             if (bioinformatician.replaceGenomeSubSequence("TTTCCTGCGGACAGACC", "REPLACED")) {
                 System.out.println("Genome substring replaced");
             }
 
-            // delete gene 1 from alignment
+            // Deleting the gene 1 from alignment
             bioinformatician.deleteGenome(1);
 
-            // add new gene to the alignment
+            // Adding new gene to the alignment
             bioinformatician.addGenome(new File("gene1.fasta"));
 
-            // replace gene number 3
+            // Replacing gene number 3
             bioinformatician.replaceGenome(3, new File("gene2.fasta"));
 
-            // Print genes with the give fragment
+            // Printing genes with the give fragment
             bioinformatician.containsGenomeSubSequence("TTTTCCCCAAAAGGGG");
 
-            // save to disc
+            // Saving to disc
             bioinformatician.saveAlignment();
         } catch (UserNotFound e) {
             throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             System.out.println("Bioinformatician api tested");
         }
 
         TeamLead teamLead = new TeamLead("Jozef", "Groenewegen");
         try {
-            teamLead = (TeamLead) repository.loadUser(teamLead);
+            // Loading and configuring the team lead
+            teamLead = repository.loadUser(teamLead);
 
             // Write users' alignments into single file
             teamLead.writeAlignments();
             teamLead.writeSNPAlignments();
-            // Write scores
+
+            // Write scores to a file
             teamLead.writeScores();
 
-            // Reset to current optimal
+            // Reset the bioinformatician's alignment to the current optimal state
             teamLead.resetBioinformaticianAlignment(bioinformatician);
 
-            // Promote user alignment to optimal
+            // Promote the bioinformatician's alignment to the optimal state
             teamLead.updateOptimalAlignment(bioinformatician);
         } catch (UserNotFound e) {
             throw new RuntimeException(e);
+        } finally {
+            System.out.println("TeamLead api tested");
         }
 
         TechnicalSupport technicalSupport = new TechnicalSupport("Jeff", "Stevenson");
         try {
-            technicalSupport = (TechnicalSupport) repository.loadUser(technicalSupport);
+            // Loading and configuring the technical support user
+            technicalSupport = repository.loadUser(technicalSupport);
 
+            // Create a backup and get its version
             String version = technicalSupport.backUp();
             System.out.println(version);
 
+            // Perform a cleanup operation
             technicalSupport.clean();
 
+            // Restore from a specific backup version
             technicalSupport.restore(version);
         } catch (UserNotFound e) {
             throw new RuntimeException(e);
+        } finally {
+            System.out.println("TechnicalSupport api tested");
         }
     }
 }

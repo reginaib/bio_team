@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 // A class extends User and represents a team lead
-public class TeamLead extends User{
+public class TeamLead extends User implements RepoAccessible {
     Repository repository;
 
     // A constructor to create a TeamLead with first and last names
@@ -21,6 +21,8 @@ public class TeamLead extends User{
         super(firstName, lastName, experience);
     }
 
+    // An overridden method for setting repository
+    @Override
     public void setRepository(Repository repository) {
         this.repository = repository;
     }

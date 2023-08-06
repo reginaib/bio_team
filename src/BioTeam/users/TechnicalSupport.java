@@ -4,7 +4,6 @@ import BioTeam.repository.Repository;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -14,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 // A class extends User and represents a technical support person
-public class TechnicalSupport extends User {
+public class TechnicalSupport extends User implements RepoAccessible {
     // A private variable to store the list of repository backups
     private List<String> backups;
     Repository repository;
@@ -29,6 +28,8 @@ public class TechnicalSupport extends User {
         super(firstName, lastName, experience);
     }
 
+    // An overridden method for setting repository
+    @Override
     public void setRepository(Repository repository) {
         this.repository = repository;
     }
