@@ -17,6 +17,7 @@ import java.util.List;
 public class TechnicalSupport extends User {
     // A private variable to store the list of repository backups
     private List<String> backups;
+    Repository repository;
 
     // A constructor to create a technical support instance with first and last name
     public TechnicalSupport(String firstName, String lastName) {
@@ -28,11 +29,22 @@ public class TechnicalSupport extends User {
         super(firstName, lastName, experience);
     }
 
-    // A method for reading the list of backups from a file in the repository
-    private void readBackUps(Repository repository) throws IOException {
-        this.backups = new ArrayList<>();
+    public void setRepository(Repository repository) {
+        this.repository = repository;
+    }
 
-        try (FileReader fileReader = new FileReader(repository.getBackUpList())) {
+    List<String> getBackups() throws IOException {
+        if (this.backups == null) {
+            this.backups = new ArrayList<>();
+            this.readBackUps();
+        }
+        return this.backups;
+    }
+
+    // A method for reading the list of backups from a file in the repository
+    private void readBackUps() throws IOException {
+        if (!this.repository.getBackUpList().exists()) return;
+        try (FileReader fileReader = new FileReader(this.repository.getBackUpList())) {
             try (BufferedReader bufferedReader = new BufferedReader(fileReader)) {
                 // Reading each version from the file and adding it to the backups list
                 String version = bufferedReader.readLine();
@@ -45,103 +57,99 @@ public class TechnicalSupport extends User {
     }
 
     // A method for writing the list of backups to a file in the repository
-    private void writeBackUps(Repository repository) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(repository.getBackUpList())) {
+    private void writeBackUps() throws IOException {
+        try (FileWriter fileWriter = new FileWriter(this.repository.getBackUpList())) {
             // Writing each version from the backups list to the file
-            for (String version : this.backups) {
+            for (String version : this.getBackups()) {
                 fileWriter.write(version + '\n');
             }
         }
     }
 
     // A method for creating a backup of the repository's data
-    public void backUp(Repository repository) throws IOException {
-        // If backups list is not read yet, read it from the file
-        if (this.backups == null){
-            this.readBackUps(repository);
-        }
-
+    public String backUp() throws IOException {
         // Creating a timestamp to be used as the version of the backup
         Date date = Calendar.getInstance().getTime();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm");
         String version = dateFormat.format(date);
 
+        File dir = new File(version);
+        dir.mkdir();
+
         // Creating copies of the files for optimal alignment, SNP alignment, and score
-        Files.copy(repository.getOptimalAlignment().toPath(),
-                Path.of(repository.getOptimalAlignment().toString() + version),
+        Files.copy(this.repository.getOptimalAlignment().toPath(),
+                dir.toPath().resolve(this.repository.getOptimalAlignment().toPath()),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(repository.getOptimalSNPAlignment().toPath(),
-                Path.of(repository.getOptimalSNPAlignment().toString() + version),
+        Files.copy(this.repository.getOptimalSNPAlignment().toPath(),
+                dir.toPath().resolve(this.repository.getOptimalSNPAlignment().toPath()),
                 StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(repository.getOptimalScore().toPath(),
-                Path.of(repository.getOptimalScore().toString() + version),
+        Files.copy(this.repository.getOptimalScore().toPath(),
+                dir.toPath().resolve(this.repository.getOptimalScore().toPath()),
                 StandardCopyOption.REPLACE_EXISTING);
 
         // Creating copies of the files for each bioinformatician's alignment, SNP alignment, and score
-        for (Bioinformatician user : repository.getBioinformaticians()) {
-            Files.copy(Path.of(user.getFullName() + ".alignment.txt"),
-                    Path.of(user.getFullName() + ".alignment.txt" + version),
+        for (Bioinformatician user : this.repository.getBioinformaticians()) {
+            Files.copy(user.getAlignmentName().toPath(),
+                    dir.toPath().resolve(user.getAlignmentName().toPath()),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Path.of(user.getFullName() + ".snp_alignment.txt"),
-                    Path.of(user.getFullName() + ".snp_alignment.txt" + version),
+            Files.copy(user.getSNPAlignmentName().toPath(),
+                    dir.toPath().resolve(user.getSNPAlignmentName().toPath()),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Path.of(user.getFullName() + ".score.txt"),
-                    Path.of(user.getFullName() + ".score.txt" + version),
+            Files.copy(user.getScoreName().toPath(),
+                    dir.toPath().resolve(user.getScoreName().toPath()),
                     StandardCopyOption.REPLACE_EXISTING);
         }
 
         // Adding the created version to the backups list and writing it to the file
-        this.backups.add(version);
-        this.writeBackUps(repository);
+        this.getBackups().add(version);
+        this.writeBackUps();
+        return version;
     }
 
     // A method for restoring a specific version of the repository's data
-    public void restore(Repository repository, String version) throws IOException {
-        // If backups list is not read yet, read it from the file
-        if (this.backups == null){
-            this.readBackUps(repository);
-        }
-
+    public void restore(String version) throws IOException {
         // Checking if the given version exists in the backups list
-        if (this.backups.contains(version)) {
+        if (!this.backups.contains(version)) {
             throw new IllegalArgumentException("version doesn't exists");
         }
 
-        // Restoring the files for optimal alignment, SNP alignment, and score
-        Files.copy(Path.of(repository.getOptimalAlignment().toString() + version),
-                repository.getOptimalAlignment().toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(Path.of(repository.getOptimalSNPAlignment().toString() + version),
-                repository.getOptimalSNPAlignment().toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(Path.of(repository.getOptimalScore().toString() + version), repository.getOptimalScore().toPath(),
+        File dir = new File(version);
 
+        // Restoring the files for optimal alignment, SNP alignment, and score
+        Files.copy(dir.toPath().resolve(this.repository.getOptimalAlignment().toPath()),
+                this.repository.getOptimalAlignment().toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(dir.toPath().resolve(this.repository.getOptimalSNPAlignment().toPath()),
+                this.repository.getOptimalSNPAlignment().toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(dir.toPath().resolve(this.repository.getOptimalScore().toPath()),
+                this.repository.getOptimalScore().toPath(),
                 StandardCopyOption.REPLACE_EXISTING);
 
         // Restoring the files for each bioinformatician's alignment, SNP alignment, and score
-        for (Bioinformatician user : repository.getBioinformaticians()) {
-            Files.copy(Path.of(user.getFullName() + ".alignment.txt" + version), Path.of(user.getFullName() + ".alignment.txt"),
-
+        for (Bioinformatician user : this.repository.getBioinformaticians()) {
+            Files.copy(dir.toPath().resolve(user.getAlignmentName().toPath()),
+                    user.getAlignmentName().toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Path.of(user.getFullName() + ".snp_alignment.txt" + version), Path.of(user.getFullName() + ".snp_alignment.txt"),
-
+            Files.copy(dir.toPath().resolve(user.getSNPAlignmentName().toPath()),
+                    user.getSNPAlignmentName().toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Path.of(user.getFullName() + ".score.txt" + version), Path.of(user.getFullName() + ".score.txt"),
-
+            Files.copy(dir.toPath().resolve(user.getScoreName().toPath()),
+                    user.getScoreName().toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
     // A method for cleaning up the repository
-    public void clean(Repository repository) {
-        repository.getOptimalAlignment().delete();
-        repository.getOptimalSNPAlignment().delete();
-        repository.getOptimalScore().delete();
+    public void clean() {
+        this.repository.getOptimalAlignment().delete();
+        this.repository.getOptimalSNPAlignment().delete();
+        this.repository.getOptimalScore().delete();
 
-        for (Bioinformatician user : repository.getBioinformaticians()) {
-            new File(user.getFullName() + ".alignment.txt").delete();
-            new File(user.getFullName() + ".snp_alignment.txt").delete();
-            new File(user.getFullName() + ".score.txt").delete();
+        for (Bioinformatician user : this.repository.getBioinformaticians()) {
+            user.getAlignmentName().delete();
+            user.getSNPAlignmentName().delete();
+            user.getScoreName().delete();
         }
     }
 }

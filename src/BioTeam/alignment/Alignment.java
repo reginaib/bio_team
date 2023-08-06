@@ -110,7 +110,8 @@ public abstract class Alignment implements Set, Editable, IO {
         return found;
     }
 
-    // A method for checking if a given subsequence is present in any of the genomes
+    // A method for searching through the genomes for a specific subsequence and returning the indices
+    // for those genomes in which the sequence can be found
     public int[] containsGenomeSubSequence(String pattern) {
         List<Integer> found = new ArrayList<>();
         int i = 0;
