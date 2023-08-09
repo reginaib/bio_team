@@ -8,6 +8,7 @@ import BioTeam.users.TechnicalSupport;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -17,6 +18,10 @@ public class Main {
         Properties properties = new Properties();
         try (FileInputStream input = new FileInputStream("config.properties")) {
             properties.load(input);
+        } catch (FileNotFoundException fnf) {
+            System.out.println("File not found: " + fnf);
+        } catch (IOException io) {
+            System.out.println("An error occurred: " + io);
         }
         // Initializing the repository and loading data
         Repository repository = new Repository(properties);
